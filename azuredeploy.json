@@ -61,19 +61,8 @@
               {
                 "virtualPath": "/",
                 "physicalPath": "site\\wwwroot"
-              },
-              //{
-              //  "virtualPath": "/TracDat",
-              //  "physicalPath": "site\\wwwroot\\bin\\Tomcat7\\webapps"
-              //},
+              }
             ],
-            //"connectionStrings": [
-            //  {
-            //    "ConnectionString": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('TracDatAppName'), '-db')), ';user=tracdat@tracdatsql;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
-            //    "Name": "ConnString2",
-            //    "Type": "SQLAzure"
-            //  }
-            //],
             "defaultDocuments": [
               "index.html",
               "hostingstart.html",
@@ -90,7 +79,6 @@
           ],
           "properties": {
             "ConnString1": {
-              "value": "jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=demo;user=tracdat@tracdatsql;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;",
               "value": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('TracDatAppName'), '-db')), ';user=tracdat@tracdatsql;password=Nuventive1;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
               "type": "SQLAzure"
             }
