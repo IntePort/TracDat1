@@ -1,0 +1,165 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "TracDatAppName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "name": "TracDat",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "East US",
+      "apiVersion": "2014-06-01",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "TracDat"
+      },
+      "properties": {
+        "name": "TracDat",
+        "sku": "Standard",
+        "workerSize": "Small",
+        "numberOfWorkers": 1
+      }
+    },
+    {
+      "name": "[parameters('TracDatAppName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "East US",
+      "apiVersion": "2014-06-01",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', 'TracDat')]"
+      ],
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', 'TracDat')]": "Resource",
+        "displayName": "TracDatApp"
+      },
+      "properties": {
+        "name": "[parameters('TracDatAppName')]",
+        "serverFarm": "TracDat"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+          ],
+          "properties": {
+            "use32BitWorkerProcess": false, /* 64-bit platform */
+            "webSocketsEnabled": true,
+            //"alwaysOn": true,
+            "requestTracingEnabled": true, /* Failed request tracing, aka 'freb' */
+            "httpLoggingEnabled": true, /* IIS logs (aka Web server logging) */
+            "logsDirectorySizeLimit": 40, /* 40 MB limit for IIS logs */
+            "detailedErrorLoggingEnabled": true, /* Detailed error messages  */
+            "virtualApplications": [
+              {
+                "virtualPath": "/",
+                "physicalPath": "site\\wwwroot"
+              },
+              //{
+              //  "virtualPath": "/TracDat",
+              //  "physicalPath": "site\\wwwroot\\bin\\Tomcat7\\webapps"
+              //},
+            ],
+            //"connectionStrings": [
+            //  {
+            //    "ConnectionString": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('TracDatAppName'), '-db')), ';user=tracdat@tracdatsql;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
+            //    "Name": "ConnString2",
+            //    "Type": "SQLAzure"
+            //  }
+            //],
+            "defaultDocuments": [
+              "index.html",
+              "hostingstart.html",
+              "login.xhtml"
+            ]
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "connectionstrings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+          ],
+          "properties": {
+            "ConnString1": {
+              "value": "jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=demo;user=tracdat@tracdatsql;password={your_password_here};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;",
+              "value": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('TracDatAppName'), '-db')), ';user=tracdat@tracdatsql;password=Nuventive1;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
+              "type": "SQLAzure"
+            }
+          }
+        },
+        {
+          "apiVersion": "2015-04-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+          ],
+          "properties": {
+            "repoUrl": "https://api.onedrive.com/v1.0/drive/special/approot:/TestClient1",
+            "branch": null
+
+          }
+        }
+      ]
+    },
+    {
+      "name": "tracdatsqlprod",
+      "type": "Microsoft.Sql/servers",
+      "location": "East US",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "tracdatsqlprod"
+      },
+      "properties": {
+        "administratorLogin": "tracdat",
+        "administratorLoginPassword": "Nuventive1",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "East US",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "Microsoft.Sql/servers/tracdatsqlprod"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "name": "[toLower(concat(parameters('TracDatAppName'), '-db'))]",
+          "type": "databases",
+          "location": "East US",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "tracdatsqlprod"
+          ],
+          "tags": {
+            "displayName": "TracDatBlankDbCopy"
+          },
+          "properties": {
+            "createMode": "Copy",
+            "sourceDatabaseId": "/subscriptions/363e0ce6-6944-4e96-a2da-d170b21902d0/resourceGroups/TracDat/providers/Microsoft.Sql/servers/tracdatsql/databases/tracdatv5_5044_blank"
+
+          }
+        }
+      ]
+    }
+
+  ],
+  "outputs": {
+  }
+}
