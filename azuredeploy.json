@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "TracDatAppName": {
+    "siteName": {
       "type": "string"
     }
   },
@@ -26,7 +26,7 @@
       }
     },
     {
-      "name": "[parameters('TracDatAppName')]",
+      "name": "[parameters('siteName')]",
       "type": "Microsoft.Web/sites",
       "location": "East US",
       "apiVersion": "2014-06-01",
@@ -38,7 +38,7 @@
         "displayName": "TracDatApp"
       },
       "properties": {
-        "name": "[parameters('TracDatAppName')]",
+        "name": "[parameters('siteName')]",
         "serverFarm": "TracDat"
       },
       "resources": [
@@ -47,7 +47,7 @@
           "name": "web",
           "type": "config",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ],
           "properties": {
             "use32BitWorkerProcess": false, /* 64-bit platform */
@@ -75,11 +75,11 @@
           "name": "connectionstrings",
           "type": "config",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ],
           "properties": {
             "ConnString1": {
-              "value": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('TracDatAppName'), '-db')), ';user=tracdat@tracdatsql;password=Nuventive1;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
+              "value": "[concat('jdbc:sqlserver://tracdatsqlprod.database.windows.net:1433;database=', toLower(concat(parameters('siteName'), '-db')), ';user=tracdat@tracdatsql;password=Nuventive1;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;')]",
               "type": "SQLAzure"
             }
           }
@@ -89,7 +89,7 @@
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('TracDatAppName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ],
           "properties": {
             "repoUrl": "https://api.onedrive.com/v1.0/drive/special/approot:/TestClient1",
@@ -128,7 +128,7 @@
           }
         },
         {
-          "name": "[toLower(concat(parameters('TracDatAppName'), '-db'))]",
+          "name": "[toLower(concat(parameters('siteName'), '-db'))]",
           "type": "databases",
           "location": "East US",
           "apiVersion": "2014-04-01-preview",
@@ -151,3 +151,4 @@
   "outputs": {
   }
 }
+
